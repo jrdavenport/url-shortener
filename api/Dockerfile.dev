@@ -1,0 +1,12 @@
+FROM node:lts
+
+WORKDIR /usr/src/api
+
+# If node_modules change, we wil need to rebuild the Docker image.
+# If we want to avoid a re-build, we will need to manually to run the
+# install in the directory, and include the whole app in the linked
+# volume -  the app will still have to be brought up and down to reflect.
+COPY . ./
+RUN npm install
+
+CMD ["npm", "run", "start:dev"]

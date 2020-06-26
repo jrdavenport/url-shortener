@@ -1,0 +1,35 @@
+version: '3'
+services:
+  server:
+    build:
+      context: ./server/
+      dockerfile: Dockerfile.dev
+    image: myapp-server
+    ports:
+      - '80:80' # Connect localhost 80 port to container 80 port
+    links: # Link services to access http://app and  http://api inside the container
+      - api:api
+      - app:app
+  app:
+    stdin_open: true #stdin_open keeps react-scripts running in interactive mode
+    build:
+      context: ./app/
+      dockerfile: Dockerfile.dev
+    image: myapp-app
+    environment:
+      - NODE_ENV=development
+    volumes: # For webpack dev server to use our local files
+      - ./app/src:/usr/src/app/src
+    ports:
+      - '3000:3000' # For docker to now where to redirect HMR queries
+  api:
+    build:
+      context: ./api/.
+      dockerfile: Dockerfile.dev
+    image: myapp-api
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./api/src:/usr/src/api/src
+    ports:
+      - '8000:8000'

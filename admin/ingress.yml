@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx2
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "url-shortener-static-ingress-ip"
+spec:
+  tls:
+    - secretName: secret-tls
+  backend:
+    serviceName: server
+    servicePort: 80

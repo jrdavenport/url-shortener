@@ -1,0 +1,40 @@
+$primary: teal;
+
+@import '~bootstrap/scss/bootstrap.scss';
+
+.url-logo {
+  display: flex;
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+  img {
+    width: 200px;
+    margin: auto;
+  }
+}
+
+.url-form {
+  display: flex;
+  flex-direction: column;
+
+  #submit-input {
+    margin-top: 10px;
+  }
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+
+    #url-input {
+      margin-right: 40px;
+    }
+
+    #submit-input {
+      margin-top: 0;
+      max-width: 25%;
+    }
+  }
+}
+
+.url-table {
+  margin-top: 30px;
+}

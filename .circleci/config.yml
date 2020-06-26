@@ -1,0 +1,154 @@
+version: 2.1
+orbs:
+  node: circleci/node@2.1.1
+  gcp-gke: circleci/gcp-gke@1.0.4
+  gcr: circleci/gcp-gcr@0.7.1
+
+jobs:
+  build-and-test-nginx:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: ls
+          command: ls
+
+  publish-and-rollout-nginx:
+    description: Publish nginx image GCR and rollout to GKE
+    machine: true
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - gcr/build-image:
+          path: ./server/
+          dockerfile: Dockerfile.dev
+          image: url-shortener-server
+          tag: $CIRCLE_SHA1
+      - gcr/push-image:
+          image: url-shortener-server
+          tag: $CIRCLE_SHA1
+      - gcp-gke/install
+      - gcp-gke/rollout-image:
+          cluster: url-shortener-cluster
+          deployment: server
+          container: server
+          image: gcr.io/url-shortener-22472/url-shortener-server
+          tag: $CIRCLE_SHA1
+
+  build-and-test-app:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: ls
+          command: ls
+
+  publish-and-rollout-app:
+    description: Publish app image GCR and rollout to GKE
+    machine: true
+    steps:
+      - checkout
+      - gcr/gcr-auth
+      - gcr/build-image:
+          path: ./app/
+          dockerfile: Dockerfile
+          image: url-shortener-app
+          tag: $CIRCLE_SHA1
+      - gcr/push-image:
+          image: url-shortener-app
+          tag: $CIRCLE_SHA1
+      - gcp-gke/install
+      - gcp-gke/rollout-image:
+          cluster: url-shortener-cluster
+          deployment: app
+          container: app
+          image: gcr.io/url-shortener-22472/url-shortener-app
+          tag: $CIRCLE_SHA1
+
+  build-and-test-api:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: ls
+          command: ls
+
+  publish-and-rollout-api:
+    description: Publish api image GCR and rollout to GKE
+    machine: true
+    steps:
+      - checkout
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run: >
+                echo \
+                "{
+                  \"type\":\"${firebase_type}\",
+                  \"project_id\":\"${firebase_staging_project_id}\",
+                  \"private_key_id\":\"${firebase_staging_private_key_id}\",
+                  \"private_key\":\"${firebase_staging_private_key}\",
+                  \"client_email\":\"${firebase_staging_client_email}\",
+                  \"client_id\":\"${firebase_staging_client_id}\",
+                  \"auth_uri\":\"${firebase_auth_uri}\",
+                  \"token_uri\":\"${firebase_token_uri}\",
+                  \"auth_provider_x509_cert_url\":\"${firebase_auth_cert_url}\",
+                  \"client_x509_cert_url\":\"${firebase_client_cert_url}\"
+                }"
+                >> ~/project/api/firebase-svc-acc-credentials.json
+      - when:
+          condition:
+            not:
+              equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run: >
+                echo \
+                "{
+                  \"type\":\"${firebase_type}\",
+                  \"project_id\":\"${firebase_staging_project_id}\",
+                  \"private_key_id\":\"${firebase_staging_private_key_id}\",
+                  \"private_key\":\"${firebase_staging_private_key}\",
+                  \"client_email\":\"${firebase_staging_client_email}\",
+                  \"client_id\":\"${firebase_staging_client_id}\",
+                  \"auth_uri\":\"${firebase_auth_uri}\",
+                  \"token_uri\":\"${firebase_token_uri}\",
+                  \"auth_provider_x509_cert_url\":\"${firebase_auth_cert_url}\",
+                  \"client_x509_cert_url\":\"${firebase_client_cert_url}\"
+                }"
+                >> ~/project/api/firebase-svc-acc-credentials.json
+
+      - run: cat ~/project/api/firebase-svc-acc-credentials.json
+
+      - gcr/gcr-auth
+      - gcr/build-image:
+          path: ./api/
+          dockerfile: Dockerfile.dev
+          image: url-shortener-api
+          tag: $CIRCLE_SHA1
+      - gcr/push-image:
+          image: url-shortener-api
+          tag: $CIRCLE_SHA1
+      - gcp-gke/install
+      - gcp-gke/rollout-image:
+          cluster: url-shortener-cluster
+          deployment: api
+          container: api
+          image: gcr.io/url-shortener-22472/url-shortener-api
+          tag: $CIRCLE_SHA1
+
+workflows:
+  build_update_deploy:
+    jobs:
+      - build-and-test-app
+      - publish-and-rollout-app:
+          requires:
+            - build-and-test-app
+      - build-and-test-api
+      - publish-and-rollout-api:
+          requires:
+            - build-and-test-api
+      - build-and-test-nginx
+      - publish-and-rollout-nginx:
+          requires:
+            - build-and-test-nginx
