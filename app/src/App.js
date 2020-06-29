@@ -28,6 +28,9 @@ export default function App() {
       const { url, id } = inboundAdapter(res)
       setUrlsList([...urlsList, { url, id }])
     })
+    .catch((err) => {
+      console.log('errrr', err)
+    })
   }
 
   const onChange = (event) => {

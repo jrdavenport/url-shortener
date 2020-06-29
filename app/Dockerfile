@@ -10,4 +10,6 @@ RUN ls
 
 RUN npm run build
 
+EXPOSE 80
+
 CMD ["serve", "-l", "80", "build"]

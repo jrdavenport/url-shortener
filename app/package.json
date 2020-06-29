@@ -17,7 +17,7 @@
     "reactstrap": "^8.4.1"
   },
   "scripts": {
-    "start:dev": "PORT=80 PUBLIC_URL=http://xxxx.com react-scripts start",
+    "start:dev": "PORT=3000 PUBLIC_URL=http://xxxx.com react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

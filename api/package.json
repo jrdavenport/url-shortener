@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "API_PORT=80 nodemon --exec babel-node src/server.js",
+    "start": "API_PORT=80 nodemon --exec babel-node src/server.js",
+    "start:dev": "API_PORT=8000 nodemon --exec babel-node src/server.js",
     "test": "API_PORT=8021 jest"
   },
   "dependencies": {

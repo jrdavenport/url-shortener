@@ -21,7 +21,7 @@ jobs:
       - gcr/gcr-auth
       - gcr/build-image:
           path: ./server/
-          dockerfile: Dockerfile.dev
+          dockerfile: Dockerfile
           image: url-shortener-server
           tag: $CIRCLE_SHA1
       - gcr/push-image:
@@ -82,48 +82,21 @@ jobs:
           condition:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
-            - run: >
-                echo \
-                "{
-                  \"type\":\"${firebase_type}\",
-                  \"project_id\":\"${firebase_staging_project_id}\",
-                  \"private_key_id\":\"${firebase_staging_private_key_id}\",
-                  \"private_key\":\"${firebase_staging_private_key}\",
-                  \"client_email\":\"${firebase_staging_client_email}\",
-                  \"client_id\":\"${firebase_staging_client_id}\",
-                  \"auth_uri\":\"${firebase_auth_uri}\",
-                  \"token_uri\":\"${firebase_token_uri}\",
-                  \"auth_provider_x509_cert_url\":\"${firebase_auth_cert_url}\",
-                  \"client_x509_cert_url\":\"${firebase_client_cert_url}\"
-                }"
-                >> ~/project/api/firebase-svc-acc-credentials.json
+            - run: echo ${FIREBASE_PROD_SVC_ACC} >> ~/project/api/firebase-svc-acc-credentials.json
+            - run: echo ${FIREBASE_STAGING_CONFIG} >> ~/project/api/config.json
       - when:
           condition:
             not:
               equal: [ master, << pipeline.git.branch >> ]
           steps:
-            - run: >
-                echo \
-                "{
-                  \"type\":\"${firebase_type}\",
-                  \"project_id\":\"${firebase_staging_project_id}\",
-                  \"private_key_id\":\"${firebase_staging_private_key_id}\",
-                  \"private_key\":\"${firebase_staging_private_key}\",
-                  \"client_email\":\"${firebase_staging_client_email}\",
-                  \"client_id\":\"${firebase_staging_client_id}\",
-                  \"auth_uri\":\"${firebase_auth_uri}\",
-                  \"token_uri\":\"${firebase_token_uri}\",
-                  \"auth_provider_x509_cert_url\":\"${firebase_auth_cert_url}\",
-                  \"client_x509_cert_url\":\"${firebase_client_cert_url}\"
-                }"
-                >> ~/project/api/firebase-svc-acc-credentials.json
-
+            - run: echo ${FIREBASE_STAGING_SVC_ACC} >> ~/project/api/firebase-svc-acc-credentials.json
+            - run: echo ${FIREBASE_STAGING_CONFIG} >> ~/project/api/config.json
       - run: cat ~/project/api/firebase-svc-acc-credentials.json
-
+      - run: cat ~/project/api/config.json
       - gcr/gcr-auth
       - gcr/build-image:
           path: ./api/
-          dockerfile: Dockerfile.dev
+          dockerfile: Dockerfile
           image: url-shortener-api
           tag: $CIRCLE_SHA1
       - gcr/push-image:

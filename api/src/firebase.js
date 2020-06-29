@@ -1,11 +1,15 @@
 const admin = require('firebase-admin');
-
 const firebaseServiceAccount = require('../firebase-svc-acc-credentials.json');
 const config = require('../config.json');
+const { firebaseDatabaseUrl } = config;
+
+if (!firebaseDatabaseUrl) {
+  throw new Error('firebaseDatabaseUrl must be provided in /api/config.json')
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(firebaseServiceAccount),
-  databaseURL: config.firebaseDatabaseUrl,
+  databaseURL: firebaseDatabaseUrl,
 });
 
 const urls = 'urls';
