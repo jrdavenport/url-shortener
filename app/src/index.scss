@@ -35,8 +35,31 @@ $primary: teal;
   }
 }
 
-.url-table {
+.url-cards {
   margin-top: 30px;
+  padding: 30px 15px;
+  background-color: $primary;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.url-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  &:not(:first-of-type) {
+    margin-top: 15px;
+  }
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+    justify-content: space-around;
+  }
 }
 
 .error-message {

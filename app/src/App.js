@@ -7,7 +7,6 @@ import {
   Col,
   Form,
   Input,
-  Table,
 } from 'reactstrap'
 import Logo from './logo.svg'
 
@@ -60,22 +59,16 @@ export default function App() {
         { error && <p className="error-message">{error}</p>}
         {
           !isEmpty(urlsList) && (
-            <Table className="url-table">
-              <thead>
-                <tr>
-                  <th>Original Link</th>
-                  <th>New Link</th>
-                </tr>
-              </thead>
+            <div className="url-cards">
               {
                 urlsList.map(({ url, id }) => (
-                  <tr>
-                    <td>{url}</td>
-                    <td><a href={id}>{id}</a></td>
-                  </tr>
+                  <div className="url-card">
+                    <span>{url}</span>
+                    <a href={id}>{id}</a>
+                  </div>
                 ))
               }
-            </Table>
+            </div>
           )
         }
         </Col>
