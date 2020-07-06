@@ -28,7 +28,7 @@ export default function App() {
       return axios.post(`/shortenUrl`, { url })
     .then((res) => {
       const { url, id } = inboundAdapter(res)
-      setUrlsList([...urlsList, { url, id }])
+      setUrlsList([{ url, id }, ...urlsList])
     })
     .catch((err, a) => {
       setError(err.response.data)
