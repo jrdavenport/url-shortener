@@ -12,6 +12,7 @@ import {
 import Logo from './logo.svg'
 
 const urlInitialState = '';
+const errorInitialState = null;
 
 const inboundAdapter = ({ data: { id, url }}) => ({
   url,
@@ -21,15 +22,17 @@ const inboundAdapter = ({ data: { id, url }}) => ({
 export default function App() {
   const [urlsList, setUrlsList] = useState([])
   const [url, setUrl] = useState(urlInitialState)
+  const [error, setError] = useState(errorInitialState)
 
   const onClick = () => {
-    return axios.post(`/shortenUrl`, { url })
+      setError(errorInitialState)
+      return axios.post(`/shortenUrl`, { url })
     .then((res) => {
       const { url, id } = inboundAdapter(res)
       setUrlsList([...urlsList, { url, id }])
     })
-    .catch((err) => {
-      console.log('errrr', err)
+    .catch((err, a) => {
+      setError(err.response.data)
     })
   }
 
@@ -54,6 +57,7 @@ export default function App() {
           <Input id="url-input" type="text" placeholder="Your link to shorten" value={url} onChange={onChange} />
           <Input className="btn btn-primary" id="submit-input" type="submit" value="Shorten" />
         </Form>
+        { error && <p className="error-message">{error}</p>}
         {
           !isEmpty(urlsList) && (
             <Table className="url-table">
