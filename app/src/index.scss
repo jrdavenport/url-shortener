@@ -43,24 +43,50 @@ $primary: teal;
   display: flex;
   flex-direction: column;
 }
+.url-button {
+  margin-top: 10px;
+
+  @include media-breakpoint-up(md) {
+    margin-left: 20px;
+    margin-top: 0px;
+  }
+}
 
 .url-card {
   background-color: white;
   border-radius: 10px;
   padding: 10px;
-  display: flex;
+  display: flex;  
   flex-direction: column;
-  justify-content: flex-start;
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+  }
 
   &:not(:first-of-type) {
     margin-top: 15px;
   }
 
-  @include media-breakpoint-up(md) {
-    flex-direction: row;
-    justify-content: space-around;
+  p {
+    margin-top: 0;
+    margin-bottom: auto;
+
+    @include media-breakpoint-up(md) {
+      margin-top: auto;
+    }
   }
 }
+
+  .url-text {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    width: 100%;
+
+    @include media-breakpoint-up(md) {
+      flex-direction: row;
+    }
+  }
 
 .error-message {
   margin-top: 20px;

@@ -7,6 +7,7 @@ import {
   Col,
   Form,
   Input,
+  Button,
 } from 'reactstrap'
 import Logo from './logo.svg'
 
@@ -35,6 +36,8 @@ export default function App() {
     })
   }
 
+  const copyText = (text) => () => navigator.clipboard.writeText(text)
+
   const onChange = (event) => {
     setUrl(event.target.value)
   }
@@ -57,20 +60,23 @@ export default function App() {
           <Input className="btn btn-primary" id="submit-input" type="submit" value="Shorten" />
         </Form>
         { error && <p className="error-message">{error}</p>}
-        {
-          !isEmpty(urlsList) && (
+        { !isEmpty(urlsList) && (
             <div className="url-cards">
               {
                 urlsList.map(({ url, id }) => (
-                  <div className="url-card">
-                    <span>{url}</span>
-                    <a href={id}>{id}</a>
+                    <div className="url-card">
+                      <div className="url-text">
+                        <p>{url}</p>
+                        <p><a href={id}>{id}</a></p>
+                      </div>
+                      <Button className="url-button" onClick={copyText(id)}>
+                        Copy
+                      </Button>
                   </div>
                 ))
               }
             </div>
-          )
-        }
+        )}
         </Col>
       </Row>
     </Container>
