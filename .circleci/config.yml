@@ -1,18 +1,15 @@
 version: 2.1
+
 orbs:
-  node: circleci/node@2.1.1
   gcp-gke: circleci/gcp-gke@1.0.4
   gcr: circleci/gcp-gcr@0.7.1
 
-jobs:
-  build-and-test-nginx:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: ls
-          command: ls
+executors:
+  node:
+    docker:
+      - image: circleci/node:12.14.1
 
+jobs:
   publish-and-rollout-nginx:
     description: Publish nginx image GCR and rollout to GKE
     machine: true
@@ -34,14 +31,6 @@ jobs:
           container: server
           image: gcr.io/url-shortener-22472/url-shortener-server
           tag: $CIRCLE_SHA1
-
-  build-and-test-app:
-    machine: true
-    steps:
-      - checkout
-      - run:
-          name: ls
-          command: ls
 
   publish-and-rollout-app:
     description: Publish app image GCR and rollout to GKE
@@ -65,13 +54,28 @@ jobs:
           image: gcr.io/url-shortener-22472/url-shortener-app
           tag: $CIRCLE_SHA1
 
-  build-and-test-api:
-    machine: true
+
+  test-api:
+    description: Publish api image GCR and rollout to GKE
+    executor: node
     steps:
       - checkout
-      - run:
-          name: ls
-          command: ls
+      - when:
+          condition:
+            equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run: echo ${FIREBASE_PROD_SVC_ACC} >> ~/project/api/firebase-svc-acc-credentials.json
+            - run: echo ${FIREBASE_PROD_CONFIG} >> ~/project/api/config.json
+      - when:
+          condition:
+            not:
+              equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run: echo ${FIREBASE_STAGING_SVC_ACC} >> ~/project/api/firebase-svc-acc-credentials.json
+            - run: echo ${FIREBASE_STAGING_CONFIG} >> ~/project/api/config.json
+      - run: cd ~/project/api/ && node --version
+      - run: cd ~/project/api/ && npm install
+      - run: cd ~/project/api/ && npm run test
 
   publish-and-rollout-api:
     description: Publish api image GCR and rollout to GKE
@@ -83,7 +87,7 @@ jobs:
             equal: [ master, << pipeline.git.branch >> ]
           steps:
             - run: echo ${FIREBASE_PROD_SVC_ACC} >> ~/project/api/firebase-svc-acc-credentials.json
-            - run: echo ${FIREBASE_STAGING_CONFIG} >> ~/project/api/config.json
+            - run: echo ${FIREBASE_PROD_CONFIG} >> ~/project/api/config.json
       - when:
           condition:
             not:
@@ -91,8 +95,6 @@ jobs:
           steps:
             - run: echo ${FIREBASE_STAGING_SVC_ACC} >> ~/project/api/firebase-svc-acc-credentials.json
             - run: echo ${FIREBASE_STAGING_CONFIG} >> ~/project/api/config.json
-      - run: cat ~/project/api/firebase-svc-acc-credentials.json
-      - run: cat ~/project/api/config.json
       - gcr/gcr-auth
       - gcr/build-image:
           path: ./api/
@@ -111,17 +113,15 @@ jobs:
           tag: $CIRCLE_SHA1
 
 workflows:
-  build_update_deploy:
+  app:
     jobs:
-      - build-and-test-app
-      - publish-and-rollout-app:
-          requires:
-            - build-and-test-app
-      - build-and-test-api
-      - publish-and-rollout-api:
-          requires:
-            - build-and-test-api
-      - build-and-test-nginx
-      - publish-and-rollout-nginx:
-          requires:
-            - build-and-test-nginx
+    - publish-and-rollout-app
+  api:
+    jobs:
+    - test-api
+    - publish-and-rollout-api:
+        requires:
+          - test-api
+  nginx:
+    jobs:
+    - publish-and-rollout-nginx
