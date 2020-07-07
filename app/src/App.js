@@ -56,7 +56,7 @@ export default function App() {
           <img className="" alt="JustRedirect logo"src={Logo}/>
         </div>
         <Form onSubmit={onSubmit} className="url-form">
-          <Input id="url-input" type="text" placeholder="Your link to shorten" value={url} onChange={onChange} />
+          <Input id="url-input" type="text" placeholder="Shorten your link" value={url} onChange={onChange} />
           <Input className="btn btn-primary" id="submit-input" type="submit" value="Shorten" />
         </Form>
         { error && <p className="error-message">{error}</p>}
