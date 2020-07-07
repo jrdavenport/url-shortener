@@ -2,18 +2,19 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.ts",
   "scripts": {
-    "start": "API_PORT=80 nodemon --exec babel-node src/server.js",
-    "start:dev": "API_PORT=8000 nodemon --exec babel-node src/server.js",
-    "test": "API_PORT=8021 jest"
+    "start": "tsc && API_PORT=80 node dist/server.js",
+    "start:dev": "API_PORT=8000 ts-node-dev ./src/server.ts",
+    "test": "API_PORT=8021 jest src/"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "firebase-admin": "^8.12.1",
-    "nanoid": "^3.1.9"
+    "nanoid": "^3.1.9",
+    "ts-node": "^8.10.2"
   },
   "author": "",
   "license": "ISC",
@@ -23,12 +24,18 @@
     "@babel/node": "^7.10.1",
     "@babel/plugin-transform-runtime": "^7.10.1",
     "@babel/preset-env": "^7.10.1",
+    "@babel/preset-typescript": "^7.10.4",
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.6",
     "eslint": "^7.1.0",
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-jest": "^23.13.2",
     "jest": "^26.0.1",
     "nodemon": "^2.0.2",
-    "supertest": "^4.0.2"
+    "supertest": "^4.0.2",
+    "ts-node-dev": "^1.0.0-pre.50",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.6"
   }
 }

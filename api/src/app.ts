@@ -1,6 +1,6 @@
-import express from 'express';
+import express, { Response, Request } from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
+import cors, { CorsOptions } from 'cors';
 import {
   validUrl,
   generateId,
@@ -22,13 +22,13 @@ const corsWhitelist = [
   'chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop',
 ];
 
-const corsOptions = {
-  origin(origin, callback) {
+const corsOptions: CorsOptions = {
+  origin(origin: string, callback: (error: Error, allowed: boolean) => void) {
     const isAllowed = corsWhitelist.includes(origin);
     if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS'), false);
     }
   },
 };
@@ -37,11 +37,11 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const respondWith = (res, status, message) => {
+const respondWith = (res: Response, status: number, message: any): void => {
   res.status(status).send(message);
 };
 
-export const postShortenUrl = (req, res) => {
+export const postShortenUrl = (req: Request, res: Response): any => {
   const { url } = req.body;
 
   if (!url) {
@@ -69,7 +69,7 @@ export const postShortenUrl = (req, res) => {
     });
 };
 
-export const getGetUrl = (req, res) => {
+export const getGetUrl = (req: Request, res: Response) => {
   const { id } = req.params;
 
   getUrlFromId(id)
@@ -81,12 +81,16 @@ export const getGetUrl = (req, res) => {
     });
 };
 
-const redirectToUrl = (req, res) => {
+const redirectToUrl = (req: Request, res: Response) => {
   const id = req.url;
 
   return getUrlFromId(id)
     .then((storedUrl) => {
-      res.redirect(storedUrl);
+      if (storedUrl) {
+        return res.redirect(storedUrl);
+      }
+
+      return respondWith(res, 400, `No URL can be found for id '${id}'`);
     });
 };
 
@@ -98,7 +102,11 @@ app.get('/getUrl/:id', getGetUrl);
 
 app.get('*', redirectToUrl);
 
-app.use((err, req, res) => {
+interface ErrorWithMessage extends Error {
+  status: string
+}
+
+app.use((err: Error, req: Request, res: Response) => {
   res.status(500).send(err.message || 'Oops - something went wrong!');
 });
 

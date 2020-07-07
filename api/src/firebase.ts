@@ -1,10 +1,11 @@
-const admin = require('firebase-admin');
+import * as admin from 'firebase-admin';
 const firebaseServiceAccount = require('../firebase-svc-acc-credentials.json');
 const config = require('../config.json');
+
 const { firebaseDatabaseUrl } = config;
 
 if (!firebaseDatabaseUrl) {
-  throw new Error('firebaseDatabaseUrl must be provided in /api/config.json')
+  throw new Error('f1irebaseDatabaseUrl must be provided in /api/config.json');
 }
 
 admin.initializeApp({
@@ -15,10 +16,12 @@ admin.initializeApp({
 const urls = 'urls';
 const db = admin.database();
 
-export const saveUrlToId = (id, url, timesAccessed = 0) => db.ref(`${urls}/${id}`).set({ url, timesAccessed });
+export const saveUrlToId = (
+  id: string, url: string, timesAccessed: number = 0
+) => db.ref(`${urls}/${id}`).set({ url, timesAccessed });
 
-export const getUrlFromId = (id) => db.ref(`${urls}/${id}`).once('value')
-  .then(((snapshot) => {
+export const getUrlFromId = (id: string) => db.ref(`${urls}/${id}`).once('value')
+  .then(((snapshot: admin.database.DataSnapshot) => {
     const result = (snapshot.val() && snapshot.val()) || {};
     const { url, timesAccessed } = result;
 
